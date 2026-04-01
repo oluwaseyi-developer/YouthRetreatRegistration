@@ -15,7 +15,7 @@ WORKDIR /app
 
 COPY --from=build /app/publish .
 
-ENV ASPNETCORE_URLS=http://+:8080
 ENV ASPNETCORE_ENVIRONMENT=Production
+ENV ASPNETCORE_URLS=http://+:${PORT:-8080}
 
 ENTRYPOINT ["dotnet", "YouthRetreatRegistration.dll"]
