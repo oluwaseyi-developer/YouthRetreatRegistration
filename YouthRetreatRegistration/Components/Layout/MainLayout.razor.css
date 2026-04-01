@@ -1,0 +1,251 @@
+.app-wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* ─── Header ─── */
+.app-header {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f6ff 40%, #fefce8 100%);
+    border-bottom: 1px solid rgba(10, 31, 92, 0.08);
+    padding: 0 2.5rem;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow:
+        0 1px 3px rgba(10, 31, 92, 0.04),
+        0 4px 16px rgba(10, 31, 92, 0.03);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+.header-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 76px;
+}
+
+.brand-link {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    text-decoration: none;
+    color: var(--text);
+    padding: 0.4rem 0.6rem 0.4rem 0.4rem;
+    border-radius: var(--radius);
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.brand-link:hover {
+    text-decoration: none;
+    color: var(--text);
+    background: rgba(10, 31, 92, 0.04);
+    transform: translateY(-1px);
+}
+
+.brand-logo-ring {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0a1f5c, #6b21a8);
+    padding: 3px;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(10, 31, 92, 0.15);
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.brand-link:hover .brand-logo-ring {
+    box-shadow: 0 4px 14px rgba(10, 31, 92, 0.25);
+    transform: scale(1.04);
+}
+
+.brand-logo {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+    background: #fff;
+}
+
+.brand-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.25;
+}
+
+.brand-title {
+    font-weight: 800;
+    font-size: 1.15rem;
+    color: var(--primary);
+    letter-spacing: -0.2px;
+}
+
+.brand-subtitle {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    letter-spacing: 0.2px;
+}
+
+/* ─── Nav Pills ─── */
+.header-nav {
+    display: flex;
+    gap: 0.75rem;
+    align-items: center;
+    background: rgba(10, 31, 92, 0.03);
+    padding: 0.35rem;
+    border-radius: 50px;
+    border: 1px solid rgba(10, 31, 92, 0.06);
+}
+
+.nav-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0.55rem 1.4rem;
+    border-radius: 50px;
+    font-size: 0.92rem;
+    font-weight: 600;
+    text-decoration: none;
+    color: var(--text-secondary);
+    background: transparent;
+    border: 1.5px solid transparent;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+}
+
+.nav-pill:hover {
+    color: var(--primary);
+    background: rgba(10, 31, 92, 0.06);
+    text-decoration: none;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(10, 31, 92, 0.06);
+}
+
+.nav-pill:active {
+    transform: translateY(0);
+}
+
+.nav-pill svg {
+    transition: transform 0.2s ease;
+}
+
+.nav-pill:hover svg {
+    transform: scale(1.12);
+}
+
+.nav-pill.active {
+    color: #fff;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    border-color: transparent;
+    box-shadow: 0 3px 12px rgba(10, 31, 92, 0.22);
+}
+
+.nav-pill.active:hover {
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(10, 31, 92, 0.3);
+    transform: translateY(-1px);
+}
+
+/* ─── Main ─── */
+.app-main {
+    flex: 1;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem 3rem;
+}
+
+/* ─── Footer ─── */
+.app-footer {
+    background: var(--primary);
+    color: rgba(255,255,255,0.65);
+    text-align: center;
+    padding: 1.5rem 1.5rem;
+}
+
+.footer-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.footer-brand {
+    font-size: 0.9rem;
+    font-weight: 500;
+    margin: 0 0 0.2rem;
+    color: rgba(255,255,255,0.85);
+}
+
+.footer-copy {
+    font-size: 0.8rem;
+    margin: 0;
+    opacity: 0.6;
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 640px) {
+    .app-header {
+        padding: 0 1rem;
+    }
+
+    .header-inner {
+        height: 64px;
+    }
+
+    .brand-logo-ring {
+        width: 42px;
+        height: 42px;
+    }
+
+    .brand-title {
+        font-size: 0.95rem;
+    }
+
+    .brand-subtitle {
+        font-size: 0.68rem;
+    }
+
+    .header-nav {
+        gap: 0.35rem;
+        padding: 0.25rem;
+    }
+
+    .nav-pill {
+        padding: 0.42rem 0.95rem;
+        font-size: 0.82rem;
+    }
+
+    .nav-pill svg {
+        display: none;
+    }
+
+    .app-main {
+        padding: 1.5rem 1rem 2rem;
+    }
+}
+
+/* ─── Error UI ─── */
+#blazor-error-ui {
+    color-scheme: light only;
+    background: lightyellow;
+    bottom: 0;
+    box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
+    box-sizing: border-box;
+    display: none;
+    left: 0;
+    padding: 0.6rem 1.25rem 0.7rem 1.25rem;
+    position: fixed;
+    width: 100%;
+    z-index: 1000;
+}
+
+    #blazor-error-ui .dismiss {
+        cursor: pointer;
+        position: absolute;
+        right: 0.75rem;
+        top: 0.5rem;
+    }

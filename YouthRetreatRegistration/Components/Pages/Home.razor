@@ -1,0 +1,265 @@
+﻿@page "/"
+@using YouthRetreatRegistration.Models
+@using YouthRetreatRegistration.Services
+@inject IRegistrationService RegistrationService
+@rendermode InteractiveServer
+
+<PageTitle>Register — Youth Fellowship C&S Ayo Ni O</PageTitle>
+
+<div class="reg-page">
+    <!-- ─── Unified Hero + Form Container ─── -->
+    <div class="reg-container">
+        <div class="reg-hero-side">
+            <div class="reg-hero-bg"></div>
+            <div class="reg-hero-inner">
+                <div class="hero-logo-wrap">
+                    <img src="images/logo.png" alt="C&S Ayo Ni O" class="hero-logo" />
+                </div>
+                <h1 class="hero-heading">Youth Fellowship</h1>
+                <p class="hero-church">Cherubim &amp; Seraphim Movement Church,<br />Ayo Ni O — Ikotun-Egbe Branch</p>
+                <div class="hero-divider"></div>
+                <div class="hero-badge">🔥 THE PRAYING CHURCH</div>
+                <p class="hero-event">Youth Retreat 2026</p>
+                <p class="hero-desc">Join us for an unforgettable 3-day encounter with God. Register now to secure your spot!</p>
+                <div class="hero-stats">
+                    <div class="hero-stat">
+                        <span class="hero-stat-icon">📅</span>
+                        <span>This Friday</span>
+                    </div>
+                    <div class="hero-stat">
+                        <span class="hero-stat-icon">⛪</span>
+                        <span>Ikotun-Egbe</span>
+                    </div>
+                </div>
+
+                <div class="scripture-marquee">
+                    <div class="scripture-track">
+                        <div class="scripture-item">
+                            <span class="scripture-text">"Peter therefore was kept in prison: but prayer was made without ceasing of the church unto God for him."</span>
+                            <span class="scripture-ref">— Acts 12:5</span>
+                        </div>
+                        <div class="scripture-item">
+                            <span class="scripture-text">"Confess your faults one to another, and pray one for another, that ye may be healed. The effectual fervent prayer of a righteous man availeth much."</span>
+                            <span class="scripture-ref">— James 5:16</span>
+                        </div>
+                        <div class="scripture-item">
+                            <span class="scripture-text">"Pray without ceasing."</span>
+                            <span class="scripture-ref">— 1 Thessalonians 5:17</span>
+                        </div>
+                        <div class="scripture-item">
+                            <span class="scripture-text">"If my people, which are called by my name, shall humble themselves, and pray, and seek my face, and turn from their wicked ways; then will I hear from heaven."</span>
+                            <span class="scripture-ref">— 2 Chronicles 7:14</span>
+                        </div>
+                        <div class="scripture-item">
+                            <span class="scripture-text">"The Lord is nigh unto all them that call upon him, to all that call upon him in truth."</span>
+                            <span class="scripture-ref">— Psalm 145:18</span>
+                        </div>
+                        <div class="scripture-item">
+                            <span class="scripture-text">"Ask, and it shall be given you; seek, and ye shall find; knock, and it shall be opened unto you."</span>
+                            <span class="scripture-ref">— Matthew 7:7</span>
+                        </div>
+                        @* ── Duplicate set for seamless infinite loop ── *@
+                        <div class="scripture-item">
+                            <span class="scripture-text">"Peter therefore was kept in prison: but prayer was made without ceasing of the church unto God for him."</span>
+                            <span class="scripture-ref">— Acts 12:5</span>
+                        </div>
+                        <div class="scripture-item">
+                            <span class="scripture-text">"Confess your faults one to another, and pray one for another, that ye may be healed. The effectual fervent prayer of a righteous man availeth much."</span>
+                            <span class="scripture-ref">— James 5:16</span>
+                        </div>
+                        <div class="scripture-item">
+                            <span class="scripture-text">"Pray without ceasing."</span>
+                            <span class="scripture-ref">— 1 Thessalonians 5:17</span>
+                        </div>
+                        <div class="scripture-item">
+                            <span class="scripture-text">"If my people, which are called by my name, shall humble themselves, and pray, and seek my face, and turn from their wicked ways; then will I hear from heaven."</span>
+                            <span class="scripture-ref">— 2 Chronicles 7:14</span>
+                        </div>
+                        <div class="scripture-item">
+                            <span class="scripture-text">"The Lord is nigh unto all them that call upon him, to all that call upon him in truth."</span>
+                            <span class="scripture-ref">— Psalm 145:18</span>
+                        </div>
+                        <div class="scripture-item">
+                            <span class="scripture-text">"Ask, and it shall be given you; seek, and ye shall find; knock, and it shall be opened unto you."</span>
+                            <span class="scripture-ref">— Matthew 7:7</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="reg-form-side">
+            <div class="form-top">
+                <h2>Register Now</h2>
+                <p>Fields marked <span class="req">*</span> are required</p>
+            </div>
+
+            <EditForm Model="FormModel" OnValidSubmit="HandleRegistrationAsync">
+                <DataAnnotationsValidator />
+
+                <div class="form-section-label">Personal Info</div>
+
+                <div class="field">
+                    <label for="fullName">Full Name <span class="req">*</span></label>
+                    <InputText id="fullName" class="input" @bind-Value="FormModel.FullName" placeholder="e.g. John Adeola" />
+                    <ValidationMessage For="() => FormModel.FullName" />
+                </div>
+
+                <div class="field-row">
+                    <div class="field">
+                        <label for="phone">Phone <span class="req">*</span></label>
+                        <InputText id="phone" class="input" @bind-Value="FormModel.PhoneNumber" placeholder="08012345678" />
+                        <ValidationMessage For="() => FormModel.PhoneNumber" />
+                    </div>
+                    <div class="field">
+                        <label for="email">Email <span class="optional">(optional)</span></label>
+                        <InputText id="email" class="input" @bind-Value="FormModel.Email" placeholder="you@email.com" />
+                        <ValidationMessage For="() => FormModel.Email" />
+                    </div>
+                </div>
+
+                <div class="form-section-label">Demographics</div>
+
+                <div class="field">
+                    <label>Gender <span class="req">*</span></label>
+                    <div class="gender-row">
+                        <label class="gender-card @(FormModel.Gender == Gender.Male ? "selected" : "")" @onclick="@(() => FormModel.Gender = Gender.Male)">
+                            <span class="gender-icon male-icon">♂</span>
+                            <span>Male</span>
+                        </label>
+                        <label class="gender-card @(FormModel.Gender == Gender.Female ? "selected" : "")" @onclick="@(() => FormModel.Gender = Gender.Female)">
+                            <span class="gender-icon female-icon">♀</span>
+                            <span>Female</span>
+                        </label>
+                    </div>
+                    <ValidationMessage For="() => FormModel.Gender" />
+                </div>
+
+                <div class="field">
+                    <label for="ageRange">Age Range <span class="req">*</span></label>
+                    <InputSelect id="ageRange" class="input" @bind-Value="FormModel.AgeRange">
+                        <option value="">— Select —</option>
+                        <option value="Below 18">Below 18</option>
+                        <option value="18–25">18 – 25</option>
+                        <option value="26–35">26 – 35</option>
+                        <option value="36–45">36 – 45</option>
+                        <option value="46+">46+</option>
+                    </InputSelect>
+                    <ValidationMessage For="() => FormModel.AgeRange" />
+                </div>
+
+                <div class="form-section-label">Branch</div>
+
+                <label class="toggle-row">
+                    <span class="toggle-track">
+                        <input type="checkbox" @bind="FormModel.IsFromOtherBranch" />
+                        <span class="toggle-knob"></span>
+                    </span>
+                    <span>I am visiting from another branch</span>
+                </label>
+
+                <div class="branch-slide @(FormModel.IsFromOtherBranch ? "open" : "")">
+                    <div class="field">
+                        <label for="branchName">Branch Name</label>
+                        <InputText id="branchName" class="input" @bind-Value="FormModel.BranchName" placeholder="e.g. Surulere Branch" />
+                    </div>
+                </div>
+
+                <div class="form-section-label">Expectations</div>
+
+                <div class="field">
+                    <label for="expectations">What are your expectations for this 3-day retreat? <span class="optional">(optional)</span></label>
+                    <InputTextArea id="expectations" class="input textarea" @bind-Value="FormModel.Expectations" placeholder="e.g. I want to grow deeper in prayer and fellowship..." rows="3" />
+                    <ValidationMessage For="() => FormModel.Expectations" />
+                </div>
+
+                <button type="submit" class="btn-submit" disabled="@_isSubmitting">
+                    @if (_isSubmitting)
+                    {
+                        <span class="spinner"></span>
+                        <span>Submitting…</span>
+                    }
+                    else
+                    {
+                        <span>Complete Registration</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8"/></svg>
+                    }
+                </button>
+            </EditForm>
+        </div>
+    </div>
+</div>
+
+@* ─── Success Modal ─── *@
+@if (_showSuccess)
+{
+    <div class="modal-overlay">
+        <div class="app-modal-box modal-success">
+            <div class="modal-icon-ring success-ring">
+                <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+                </svg>
+            </div>
+            <h3>Registration Successful! 🎉</h3>
+            <p>Welcome, <strong>@_registeredName</strong>! You have been successfully registered for the Youth Retreat 2026. We look forward to seeing you there!</p>
+            <button type="button" class="modal-btn modal-btn-success" @onclick="CloseSuccessModal">Got it!</button>
+        </div>
+    </div>
+}
+
+@* ─── Duplicate Error Modal ─── *@
+@if (_showDuplicateModal)
+{
+    <div class="modal-overlay">
+        <div class="app-modal-box modal-warning">
+            <div class="modal-icon-ring warning-ring">
+                <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5m.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/>
+                </svg>
+            </div>
+            <h3>Already Registered</h3>
+            <p>A registration with this <strong>name</strong> and <strong>phone number</strong> already exists. Each person can only register once.</p>
+            <button type="button" class="modal-btn modal-btn-warning" @onclick="CloseDuplicateModal">Understood</button>
+        </div>
+    </div>
+}
+
+@code {
+    private RegistrationFormModel FormModel { get; set; } = new();
+
+    private bool _isSubmitting;
+    private bool _showSuccess;
+    private bool _showDuplicateModal;
+    private string _registeredName = string.Empty;
+
+    private async Task HandleRegistrationAsync()
+    {
+        _isSubmitting = true;
+        _showSuccess = false;
+        _showDuplicateModal = false;
+
+        if (await RegistrationService.IsDuplicateAsync(FormModel.FullName, FormModel.PhoneNumber))
+        {
+            _showDuplicateModal = true;
+            _isSubmitting = false;
+            return;
+        }
+
+        await RegistrationService.AddRegistrationAsync(FormModel);
+
+        _registeredName = FormModel.FullName;
+        _showSuccess = true;
+        FormModel = new RegistrationFormModel();
+        _isSubmitting = false;
+    }
+
+    private void CloseSuccessModal()
+    {
+        _showSuccess = false;
+    }
+
+    private void CloseDuplicateModal()
+    {
+        _showDuplicateModal = false;
+    }
+}

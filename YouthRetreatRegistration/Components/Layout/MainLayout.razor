@@ -1,0 +1,44 @@
+﻿@inherits LayoutComponentBase
+
+<div class="app-wrapper">
+    <header class="app-header">
+        <div class="header-inner">
+            <a href="/" class="brand-link">
+                <div class="brand-logo-ring">
+                    <img src="images/logo.png" alt="C&S Ayo Ni O" class="brand-logo" />
+                </div>
+                <div class="brand-text">
+                    <span class="brand-title">Youth Fellowship</span>
+                    <span class="brand-subtitle">C&amp;S Ayo Ni O — Ikotun-Egbe</span>
+                </div>
+            </a>
+            <nav class="header-nav">
+                <NavLink class="nav-pill" href="" Match="NavLinkMatch.All">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8.354 1.146a.5.5 0 0 0-.708 0l-6 6A.5.5 0 0 0 1.5 7.5v7a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5v-4h3v4a.5.5 0 0 0 .5.5h4a.5.5 0 0 0 .5-.5v-7a.5.5 0 0 0-.146-.354L13 5.793V2.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.293L8.354 1.146Z"/></svg>
+                    Register
+                </NavLink>
+                <NavLink class="nav-pill" href="admin">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2m3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2"/></svg>
+                    Admin
+                </NavLink>
+            </nav>
+        </div>
+    </header>
+
+    <main class="app-main">
+        @Body
+    </main>
+
+    <footer class="app-footer">
+        <div class="footer-inner">
+            <p class="footer-brand">Youth Fellowship — C&amp;S Movement Church, Ayo Ni O. Ikotun-Egbe Branch</p>
+            <p class="footer-copy">&copy; @DateTime.Now.Year All rights reserved.</p>
+        </div>
+    </footer>
+</div>
+
+<div id="blazor-error-ui" data-nosnippet>
+    An unhandled error has occurred.
+    <a href="." class="reload">Reload</a>
+    <span class="dismiss">🗙</span>
+</div>

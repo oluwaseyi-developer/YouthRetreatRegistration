@@ -1,0 +1,319 @@
+@page "/admin"
+@using YouthRetreatRegistration.Models
+@using YouthRetreatRegistration.Services
+@inject IRegistrationService RegistrationService
+@inject IAdminAuthService AuthService
+@rendermode InteractiveServer
+
+<PageTitle>Admin — Youth Fellowship C&S Ayo Ni O</PageTitle>
+
+@if (!AuthService.IsAuthenticated)
+{
+    <div class="admin-login-wrapper">
+        <div class="admin-login-card">
+            <div class="login-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="white" viewBox="0 0 16 16">
+                    <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2m3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2" />
+                </svg>
+            </div>
+            <h2>Admin Portal</h2>
+            <p class="login-sub">Sign in to manage registrations</p>
+
+            @if (_loginFailed)
+            {
+                <div class="login-error">Invalid username or password.</div>
+            }
+
+            <div class="field">
+                <label>Username</label>
+                <input type="text" class="input" placeholder="Enter username" @bind="_username" @bind:event="oninput" />
+            </div>
+            <div class="field">
+                <label>Password</label>
+                <input type="password" class="input" placeholder="Enter password" @bind="_password" @bind:event="oninput"
+                       @onkeydown="HandleLoginKeyDown" />
+            </div>
+            <button class="btn-login" @onclick="HandleLogin">Sign In</button>
+        </div>
+    </div>
+}
+else
+{
+    <div class="admin-dashboard">
+        <div class="admin-top-bar">
+            <h2>📊 Dashboard</h2>
+            <button class="btn-logout" @onclick="HandleLogout">Sign Out</button>
+        </div>
+
+        @if (_stats is not null)
+        {
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon total">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16"><path d="M15 14s1 0 1-1-1-4-5-4-5 3-5 4 1 1 1 1zm-7.978-1L7 12.996c.001-.264.167-1.03.76-1.72C8.312 10.629 9.282 10 11 10c1.717 0 2.687.63 3.24 1.276.593.69.758 1.457.76 1.72l-.008.002-.014.002zM11 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4m3-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0M6.936 9.28a6 6 0 0 0-1.23-.247A7 7 0 0 0 5 9c-4 0-5 3-5 4s1 1 1 1h4.216A2.24 2.24 0 0 1 5 13c0-1.01.377-2.042 1.09-2.904.243-.294.526-.569.846-.816M4.92 10A5.5 5.5 0 0 0 4 13H1c0-.26.164-1.03.76-1.724.545-.636 1.492-1.256 3.16-1.275ZM1.5 5.5a3 3 0 1 1 6 0 3 3 0 0 1-6 0m3-2a2 2 0 1 0 0 4 2 2 0 0 0 0-4"/></svg>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value">@_stats.TotalRegistrations</span>
+                        <span class="stat-label">Total Registered</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon male">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M9.5 2a.5.5 0 0 1 0-1h5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0V2.707L9.871 6.836a5 5 0 1 1-.707-.707L13.293 2zM6 6a4 4 0 1 0 0 8 4 4 0 0 0 0-8"/></svg>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value">@_stats.MaleCount</span>
+                        <span class="stat-label">Male</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon female">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M8 1a4 4 0 1 0 0 8 4 4 0 0 0 0-8M3 5a5 5 0 1 1 5.5 4.975V12h2a.5.5 0 0 1 0 1h-2v2.5a.5.5 0 0 1-1 0V13h-2a.5.5 0 0 1 0-1h2V9.975A5 5 0 0 1 3 5"/></svg>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value">@_stats.FemaleCount</span>
+                        <span class="stat-label">Female</span>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon branch">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16"><path d="M8.707 1.5a1 1 0 0 0-1.414 0L.646 8.146a.5.5 0 0 0 .708.708L2 8.207V13.5A1.5 1.5 0 0 0 3.5 15h9a1.5 1.5 0 0 0 1.5-1.5V8.207l.646.647a.5.5 0 0 0 .708-.708z"/></svg>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value">@_stats.OtherBranchCount</span>
+                        <span class="stat-label">Other Branches</span>
+                    </div>
+                </div>
+            </div>
+
+            @if (_stats.AgeRangeBreakdown.Count > 0)
+            {
+                <div class="age-pills-row">
+                    <span class="age-pills-label">📈 Age Groups:</span>
+                    @foreach (var entry in AgeRangeOrdered)
+                    {
+                        <span class="age-pill">
+                            <span class="age-pill-name">@entry.Key</span>
+                            <span class="age-pill-count">@entry.Value</span>
+                        </span>
+                    }
+                </div>
+            }
+        }
+
+        <div class="table-card">
+            <div class="table-header">
+                <h3>Registered Attendees</h3>
+                <span class="table-count">@_totalCount total</span>
+            </div>
+
+            @if (_registrations.Count == 0)
+            {
+                <div class="empty-state">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/><path d="M4.285 12.433a.5.5 0 0 0 .683-.183A3.5 3.5 0 0 1 8 10.5c1.295 0 2.426.703 3.032 1.75a.5.5 0 0 0 .866-.5A4.5 4.5 0 0 0 8 9.5a4.5 4.5 0 0 0-3.898 2.25.5.5 0 0 0 .183.683M7 6.5C7 7.328 6.552 8 6 8s-1-.672-1-1.5S5.448 5 6 5s1 .672 1 1.5m4 0c0 .828-.448 1.5-1 1.5s-1-.672-1-1.5S9.448 5 10 5s1 .672 1 1.5"/></svg>
+                    <p>No registrations yet.</p>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Full Name</th>
+                                <th>Phone</th>
+                                <th>Gender</th>
+                                <th>Age Range</th>
+                                <th>Branch</th>
+                                <th>Expectations</th>
+                                <th>Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @{ var rowNumber = (_currentPage - 1) * PageSize; }
+                            @foreach (var reg in _registrations)
+                            {
+                                rowNumber++;
+                                <tr>
+                                    <td>@rowNumber</td>
+                                    <td><strong>@reg.FullName</strong></td>
+                                    <td>@reg.PhoneNumber</td>
+                                    <td>
+                                        <span class="badge @(reg.Gender == Gender.Male ? "badge-male" : "badge-female")">
+                                            @reg.Gender
+                                        </span>
+                                    </td>
+                                    <td>@reg.AgeRange</td>
+                                    <td>
+                                        @if (reg.IsFromOtherBranch)
+                                        {
+                                            <span class="badge badge-branch">@reg.BranchName</span>
+                                        }
+                                        else
+                                        {
+                                                <span style="color:var(--text-muted)">Ikotun-Egbe</span>
+                                                }
+                                            </td>
+                                            <td class="cell-expectations">
+                                                @if (!string.IsNullOrWhiteSpace(reg.Expectations))
+                                                {
+                                                    <span>@reg.Expectations</span>
+                                                }
+                                                else
+                                                {
+                                                    <span style="color:var(--text-muted)">—</span>
+                                                }
+                                            </td>
+                                            <td>@reg.RegisteredAt.ToString("dd MMM, HH:mm")</td>
+                                    <td>
+                                        <button class="btn-delete" @onclick="() => ConfirmDelete(reg.Id, reg.FullName)">Delete</button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                @if (_totalPages > 1)
+                {
+                    <div class="pagination-bar">
+                        <button class="page-btn" disabled="@(_currentPage <= 1)" @onclick="() => GoToPageAsync(_currentPage - 1)">‹</button>
+                        @for (var i = 1; i <= _totalPages; i++)
+                        {
+                            var pageNum = i;
+                            <button class="page-btn @(pageNum == _currentPage ? "active" : "")" @onclick="() => GoToPageAsync(pageNum)">@pageNum</button>
+                        }
+                        <button class="page-btn" disabled="@(_currentPage >= _totalPages)" @onclick="() => GoToPageAsync(_currentPage + 1)">›</button>
+                    </div>
+                }
+            }
+        </div>
+    </div>
+}
+
+@* ─── Delete Confirmation Modal ─── *@
+@if (_showDeleteConfirm)
+{
+    <div class="modal-overlay">
+        <div class="app-modal-box modal-danger">
+            <div class="modal-icon-ring danger-ring">
+                <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"/>
+                    <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"/>
+                </svg>
+            </div>
+            <h3>Confirm Deletion</h3>
+            <p>Are you sure you want to delete the registration for <strong>@_deleteTargetName</strong>? This action cannot be undone.</p>
+            <div class="modal-actions">
+                <button type="button" class="modal-btn modal-btn-cancel" @onclick="CancelDelete">Cancel</button>
+                <button type="button" class="modal-btn modal-btn-danger" @onclick="ExecuteDeleteAsync">Yes, Delete</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private const int PageSize = 10;
+
+    private string _username = string.Empty;
+    private string _password = string.Empty;
+    private bool _loginFailed;
+
+    private int _currentPage = 1;
+    private int _totalCount;
+    private int _totalPages;
+    private List<Registration> _registrations = [];
+    private DashboardStats? _stats;
+
+    private bool _showDeleteConfirm;
+    private Guid _deleteTargetId;
+    private string _deleteTargetName = string.Empty;
+
+    private IEnumerable<KeyValuePair<string, int>> AgeRangeOrdered =>
+        _stats?.AgeRangeBreakdown.OrderBy(kvp => kvp.Key) ?? Enumerable.Empty<KeyValuePair<string, int>>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (AuthService.IsAuthenticated)
+        {
+            await LoadDataAsync();
+        }
+    }
+
+    private async Task HandleLogin()
+    {
+        _loginFailed = !AuthService.Login(_username, _password);
+
+        if (AuthService.IsAuthenticated)
+        {
+            await LoadDataAsync();
+        }
+    }
+
+    private async Task HandleLoginKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await HandleLogin();
+        }
+    }
+
+    private void HandleLogout()
+    {
+        AuthService.Logout();
+        _username = string.Empty;
+        _password = string.Empty;
+        _loginFailed = false;
+    }
+
+    private async Task LoadDataAsync()
+    {
+        var result = await RegistrationService.GetRegistrationsPagedAsync(_currentPage, PageSize);
+        _registrations = result.Items;
+        _totalCount = result.TotalCount;
+        _totalPages = (int)Math.Ceiling(_totalCount / (double)PageSize);
+        _stats = await RegistrationService.GetDashboardStatsAsync();
+    }
+
+    private async Task GoToPageAsync(int page)
+    {
+        _currentPage = page;
+        await LoadDataAsync();
+    }
+
+    private async Task HandleDeleteAsync(Guid id)
+    {
+        await RegistrationService.DeleteRegistrationAsync(id);
+
+        if (_registrations.Count == 1 && _currentPage > 1)
+        {
+            _currentPage--;
+        }
+
+        await LoadDataAsync();
+    }
+
+    private void ConfirmDelete(Guid id, string name)
+    {
+        _deleteTargetId = id;
+        _deleteTargetName = name;
+        _showDeleteConfirm = true;
+    }
+
+    private void CancelDelete()
+    {
+        _showDeleteConfirm = false;
+        _deleteTargetId = Guid.Empty;
+        _deleteTargetName = string.Empty;
+    }
+
+    private async Task ExecuteDeleteAsync()
+    {
+        _showDeleteConfirm = false;
+        await HandleDeleteAsync(_deleteTargetId);
+        _deleteTargetId = Guid.Empty;
+        _deleteTargetName = string.Empty;
+    }
+}
