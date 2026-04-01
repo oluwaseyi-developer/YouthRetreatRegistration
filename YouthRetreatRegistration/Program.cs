@@ -9,11 +9,21 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-var dbPath = Path.Combine(builder.Environment.ContentRootPath, "Data", "registrations.db");
-Directory.CreateDirectory(Path.GetDirectoryName(dbPath)!);
-
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite($"Data Source={dbPath}"));
+// Use PostgreSQL in production (Render), SQLite for local development
+var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+if (!string.IsNullOrEmpty(databaseUrl))
+{
+    var connectionString = ConvertDatabaseUrl(databaseUrl);
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseNpgsql(connectionString));
+}
+else
+{
+    var dbPath = Path.Combine(builder.Environment.ContentRootPath, "Data", "registrations.db");
+    Directory.CreateDirectory(Path.GetDirectoryName(dbPath)!);
+    builder.Services.AddDbContext<AppDbContext>(options =>
+        options.UseSqlite($"Data Source={dbPath}"));
+}
 
 builder.Services.AddScoped<IRegistrationService, RegistrationService>();
 builder.Services.AddScoped<IAdminAuthService, AdminAuthService>();
@@ -44,3 +54,11 @@ app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
 app.Run();
+
+// Converts Render's DATABASE_URL (postgres://user:pass@host:port/db) to Npgsql connection string
+static string ConvertDatabaseUrl(string databaseUrl)
+{
+    var uri = new Uri(databaseUrl);
+    var userInfo = uri.UserInfo.Split(':');
+    return $"Host={uri.Host};Port={uri.Port};Database={uri.AbsolutePath.TrimStart('/')};Username={userInfo[0]};Password={userInfo[1]};SSL Mode=Require;Trust Server Certificate=true";
+}

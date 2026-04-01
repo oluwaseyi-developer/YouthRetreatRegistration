@@ -5,11 +5,22 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
-    volumes:
-      - app-data:/app/Data
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/youthretreat
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  db:
+    image: postgres:17-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=youthretreat
+    volumes:
+      - pgdata:/var/lib/postgresql/data
     restart: unless-stopped
 
 volumes:
-  app-data:
+  pgdata:

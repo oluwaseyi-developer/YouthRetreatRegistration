@@ -13,9 +13,6 @@ RUN dotnet publish -c Release -o /app/publish
 FROM base AS final
 WORKDIR /app
 
-# Create data directory for SQLite
-RUN mkdir -p /app/Data
-
 COPY --from=build /app/publish .
 
 ENV ASPNETCORE_URLS=http://+:8080
