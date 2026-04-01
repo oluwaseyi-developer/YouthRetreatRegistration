@@ -187,13 +187,20 @@
 }
 
 /* ─── Responsive ─── */
-@media (max-width: 640px) {
+@media (max-width: 768px) {
     .app-header {
         padding: 0 1rem;
     }
 
     .header-inner {
-        height: 64px;
+        height: auto;
+        flex-wrap: wrap;
+        padding: 0.75rem 0;
+        gap: 0.5rem;
+    }
+
+    .brand-link {
+        gap: 0.6rem;
     }
 
     .brand-logo-ring {
@@ -225,6 +232,49 @@
 
     .app-main {
         padding: 1.5rem 1rem 2rem;
+    }
+
+    .app-footer {
+        padding: 1.2rem 1rem;
+    }
+
+    .footer-brand {
+        font-size: 0.78rem;
+    }
+
+    .footer-copy {
+        font-size: 0.7rem;
+    }
+}
+
+@media (max-width: 420px) {
+    .header-inner {
+        justify-content: center;
+        text-align: center;
+    }
+
+    .brand-link {
+        justify-content: center;
+    }
+
+    .brand-text {
+        display: none;
+    }
+
+    .header-nav {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .nav-pill {
+        flex: 1;
+        justify-content: center;
+        padding: 0.45rem 0.6rem;
+        font-size: 0.8rem;
+    }
+
+    .app-main {
+        padding: 1rem 0.75rem 1.5rem;
     }
 }
 
