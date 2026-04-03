@@ -67,6 +67,15 @@ else
                     </div>
                 </div>
                 <div class="stat-card">
+                    <div class="stat-icon attended">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16"><path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0m-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/></svg>
+                    </div>
+                    <div class="stat-info">
+                        <span class="stat-value">@_stats.AttendedCount<span class="stat-of">/@_stats.TotalRegistrations</span></span>
+                        <span class="stat-label">Attended</span>
+                    </div>
+                </div>
+                <div class="stat-card">
                     <div class="stat-icon male">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16"><path fill-rule="evenodd" d="M9.5 2a.5.5 0 0 1 0-1h5a.5.5 0 0 1 .5.5v5a.5.5 0 0 1-1 0V2.707L9.871 6.836a5 5 0 1 1-.707-.707L13.293 2zM6 6a4 4 0 1 0 0 8 4 4 0 0 0 0-8"/></svg>
                     </div>
@@ -116,6 +125,19 @@ else
                 <span class="table-count">@_totalCount total</span>
             </div>
 
+            <div class="search-bar">
+                <div class="search-input-wrap">
+                    <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/></svg>
+                    <input type="text" class="input search-input" placeholder="Search by name, phone, or branch…"
+                           @bind="_searchTerm" @bind:event="oninput" @onkeydown="HandleSearchKeyDown" />
+                    @if (!string.IsNullOrWhiteSpace(_searchTerm))
+                    {
+                        <button type="button" class="search-clear" @onclick="ClearSearch">✕</button>
+                    }
+                </div>
+                <button type="button" class="btn-search" @onclick="ExecuteSearchAsync">Search</button>
+            </div>
+
             @if (_registrations.Count == 0)
             {
                 <div class="empty-state">
@@ -137,6 +159,7 @@ else
                                 <th>Branch</th>
                                 <th>Expectations</th>
                                 <th>Date</th>
+                                <th>Attended</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -176,6 +199,14 @@ else
                                         }
                                     </td>
                                     <td data-label="Date">@reg.RegisteredAt.ToString("dd MMM, HH:mm")</td>
+                                    <td data-label="Attended">
+                                        <label class="attendance-toggle @(reg.HasAttended ? "checked" : "")">
+                                            <input type="checkbox" checked="@reg.HasAttended"
+                                                   @onchange="() => ToggleAttendanceAsync(reg.Id)" />
+                                            <span class="attendance-slider"></span>
+                                            <span class="attendance-label">@(reg.HasAttended ? "Yes" : "No")</span>
+                                        </label>
+                                    </td>
                                     <td data-label="Action">
                                         <button class="btn-delete" @onclick="() => ConfirmDelete(reg.Id, reg.FullName)">Delete</button>
                                     </td>
@@ -235,6 +266,7 @@ else
     private int _totalPages;
     private List<Registration> _registrations = [];
     private DashboardStats? _stats;
+    private string _searchTerm = string.Empty;
 
     private bool _showDeleteConfirm;
     private Guid _deleteTargetId;
@@ -279,7 +311,8 @@ else
 
     private async Task LoadDataAsync()
     {
-        var result = await RegistrationService.GetRegistrationsPagedAsync(_currentPage, PageSize);
+        var search = string.IsNullOrWhiteSpace(_searchTerm) ? null : _searchTerm;
+        var result = await RegistrationService.GetRegistrationsPagedAsync(_currentPage, PageSize, search);
         _registrations = result.Items;
         _totalCount = result.TotalCount;
         _totalPages = (int)Math.Ceiling(_totalCount / (double)PageSize);
@@ -324,5 +357,32 @@ else
         await HandleDeleteAsync(_deleteTargetId);
         _deleteTargetId = Guid.Empty;
         _deleteTargetName = string.Empty;
+    }
+
+    private async Task ExecuteSearchAsync()
+    {
+        _currentPage = 1;
+        await LoadDataAsync();
+    }
+
+    private async Task HandleSearchKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await ExecuteSearchAsync();
+        }
+    }
+
+    private async Task ClearSearch()
+    {
+        _searchTerm = string.Empty;
+        _currentPage = 1;
+        await LoadDataAsync();
+    }
+
+    private async Task ToggleAttendanceAsync(Guid id)
+    {
+        await RegistrationService.ToggleAttendanceAsync(id);
+        await LoadDataAsync();
     }
 }

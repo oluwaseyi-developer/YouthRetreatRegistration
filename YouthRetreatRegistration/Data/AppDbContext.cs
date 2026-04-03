@@ -21,6 +21,7 @@ public class AppDbContext : DbContext
             entity.Property(e => e.BranchName).HasMaxLength(100);
             entity.Property(e => e.Expectations).HasMaxLength(500);
             entity.Property(e => e.Gender).HasConversion<string>().HasMaxLength(10);
+            entity.Property(e => e.HasAttended).HasDefaultValue(false);
 
             entity.HasIndex(e => new { e.FullName, e.PhoneNumber });
         });

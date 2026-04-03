@@ -12,4 +12,6 @@ public class Registration
     public string BranchName { get; set; } = string.Empty;
     public string Expectations { get; set; } = string.Empty;
     public DateTime RegisteredAt { get; set; } = DateTime.UtcNow;
+    public bool HasAttended { get; set; }
+    public DateTime? AttendedAt { get; set; }
 }

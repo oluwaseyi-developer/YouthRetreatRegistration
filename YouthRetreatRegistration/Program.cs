@@ -36,6 +36,56 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.EnsureCreated();
+
+    // Add new columns to existing tables (EnsureCreated won't alter existing schema)
+    var conn = db.Database.GetDbConnection();
+    await conn.OpenAsync();
+    using var cmd = conn.CreateCommand();
+
+    // Check if HasAttended column exists; add it if missing
+    if (!string.IsNullOrEmpty(databaseUrl))
+    {
+        // PostgreSQL
+        cmd.CommandText = """
+            DO $$
+            BEGIN
+                IF NOT EXISTS (
+                    SELECT 1 FROM information_schema.columns
+                    WHERE table_name = 'Registrations' AND column_name = 'HasAttended'
+                ) THEN
+                    ALTER TABLE "Registrations" ADD COLUMN "HasAttended" boolean NOT NULL DEFAULT false;
+                    ALTER TABLE "Registrations" ADD COLUMN "AttendedAt" timestamp with time zone;
+                END IF;
+            END $$;
+            """;
+    }
+    else
+    {
+        // SQLite — no IF NOT EXISTS, so we catch the error if column already exists
+        cmd.CommandText = """
+            CREATE TABLE IF NOT EXISTS _migration_check (id INTEGER);
+            DROP TABLE _migration_check;
+            """;
+        await cmd.ExecuteNonQueryAsync();
+
+        try
+        {
+            cmd.CommandText = @"ALTER TABLE ""Registrations"" ADD COLUMN ""HasAttended"" INTEGER NOT NULL DEFAULT 0;";
+            await cmd.ExecuteNonQueryAsync();
+            cmd.CommandText = @"ALTER TABLE ""Registrations"" ADD COLUMN ""AttendedAt"" TEXT;";
+            await cmd.ExecuteNonQueryAsync();
+        }
+        catch (Microsoft.Data.Sqlite.SqliteException)
+        {
+            // Columns already exist — safe to ignore
+        }
+        conn.Close();
+        goto skipExec;
+    }
+
+    await cmd.ExecuteNonQueryAsync();
+    conn.Close();
+    skipExec:;
 }
 
 // Configure the HTTP request pipeline.
@@ -68,7 +118,7 @@ app.MapGet("/api/export", async (IRegistrationService svc) =>
 
     // Title row
     ws.Cell(1, 1).Value = "Youth Retreat Registration — C&S Ayo Ni O, Ikotun-Egbe";
-    ws.Range(1, 1, 1, 8).Merge();
+    ws.Range(1, 1, 1, 9).Merge();
     ws.Cell(1, 1).Style
         .Font.SetBold(true).Font.SetFontSize(16).Font.SetFontColor(XLColor.White)
         .Fill.SetBackgroundColor(XLColor.FromHtml("#0a1f5c"))
@@ -77,14 +127,14 @@ app.MapGet("/api/export", async (IRegistrationService svc) =>
 
     // Subtitle
     ws.Cell(2, 1).Value = $"Exported on {DateTime.Now:dddd, dd MMMM yyyy 'at' HH:mm}";
-    ws.Range(2, 1, 2, 8).Merge();
+    ws.Range(2, 1, 2, 9).Merge();
     ws.Cell(2, 1).Style
         .Font.SetItalic(true).Font.SetFontSize(10).Font.SetFontColor(XLColor.FromHtml("#475569"))
         .Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
     ws.Row(2).Height = 22;
 
     // Header row
-    var headers = new[] { "#", "Full Name", "Phone Number", "Gender", "Age Range", "Branch", "Expectations", "Date Registered" };
+    var headers = new[] { "#", "Full Name", "Phone Number", "Gender", "Age Range", "Branch", "Expectations", "Date Registered", "Attended" };
     for (var i = 0; i < headers.Length; i++)
     {
         var cell = ws.Cell(4, i + 1);
@@ -114,8 +164,9 @@ app.MapGet("/api/export", async (IRegistrationService svc) =>
         ws.Cell(r, 6).Value = reg.BranchName;
         ws.Cell(r, 7).Value = reg.Expectations;
         ws.Cell(r, 8).Value = reg.RegisteredAt.ToString("dd MMM yyyy, HH:mm");
+        ws.Cell(r, 9).Value = reg.HasAttended ? "Yes" : "No";
 
-        for (var c = 1; c <= 8; c++)
+        for (var c = 1; c <= 9; c++)
         {
             ws.Cell(r, c).Style
                 .Fill.SetBackgroundColor(bgColor)
@@ -128,13 +179,14 @@ app.MapGet("/api/export", async (IRegistrationService svc) =>
         ws.Cell(r, 4).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
         ws.Cell(r, 5).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
         ws.Cell(r, 8).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
+        ws.Cell(r, 9).Style.Alignment.SetHorizontal(XLAlignmentHorizontalValues.Center);
         ws.Row(r).Height = 22;
     }
 
     // Summary row
     var summaryRow = registrations.Count + 6;
     ws.Cell(summaryRow, 1).Value = $"Total: {registrations.Count} registrations";
-    ws.Range(summaryRow, 1, summaryRow, 8).Merge();
+    ws.Range(summaryRow, 1, summaryRow, 9).Merge();
     ws.Cell(summaryRow, 1).Style
         .Font.SetBold(true).Font.SetFontSize(11).Font.SetFontColor(XLColor.FromHtml("#0a1f5c"))
         .Fill.SetBackgroundColor(XLColor.FromHtml("#fef3c7"))
@@ -149,6 +201,7 @@ app.MapGet("/api/export", async (IRegistrationService svc) =>
     ws.Column(6).Width = 20;
     ws.Column(7).Width = 35;
     ws.Column(8).Width = 22;
+    ws.Column(9).Width = 12;
 
     var stream = new MemoryStream();
     workbook.SaveAs(stream);

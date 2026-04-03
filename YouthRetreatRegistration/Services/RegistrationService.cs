@@ -53,11 +53,22 @@ public sealed class RegistrationService : IRegistrationService
             .ToListAsync();
     }
 
-    public async Task<(List<Registration> Items, int TotalCount)> GetRegistrationsPagedAsync(int page, int pageSize)
+    public async Task<(List<Registration> Items, int TotalCount)> GetRegistrationsPagedAsync(int page, int pageSize, string? search = null)
     {
-        var totalCount = await _db.Registrations.CountAsync();
+        var query = _db.Registrations.AsQueryable();
 
-        var items = await _db.Registrations
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var term = search.Trim().ToLower();
+            query = query.Where(r =>
+                r.FullName.ToLower().Contains(term) ||
+                r.PhoneNumber.ToLower().Contains(term) ||
+                r.BranchName.ToLower().Contains(term));
+        }
+
+        var totalCount = await query.CountAsync();
+
+        var items = await query
             .OrderByDescending(r => r.RegisteredAt)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
@@ -86,9 +97,21 @@ public sealed class RegistrationService : IRegistrationService
             MaleCount = all.Count(r => r.Gender == Gender.Male),
             FemaleCount = all.Count(r => r.Gender == Gender.Female),
             OtherBranchCount = all.Count(r => r.IsFromOtherBranch),
+            AttendedCount = all.Count(r => r.HasAttended),
             AgeRangeBreakdown = all
                 .GroupBy(r => r.AgeRange)
                 .ToDictionary(g => g.Key, g => g.Count())
         };
+    }
+
+    public async Task<bool> ToggleAttendanceAsync(Guid id)
+    {
+        var registration = await _db.Registrations.FindAsync(id);
+        if (registration is null) return false;
+
+        registration.HasAttended = !registration.HasAttended;
+        registration.AttendedAt = registration.HasAttended ? DateTime.UtcNow : null;
+        await _db.SaveChangesAsync();
+        return registration.HasAttended;
     }
 }
